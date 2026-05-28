@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AI-Driven Intelligent In-Car Decision Support System For Vehicle Health Monitoring And Smart Route Guidance</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:#070b14;--bg1:#0d1526;--bg2:#111d35;--bg3:#16264a;
+  --border:#1e3060;--border2:#243870;
+  --blue:#2563eb;--blue2:#3b82f6;--blue3:#60a5fa;
+  --cyan:#06b6d4;--cyan2:#22d3ee;
+  --green:#10b981;--green2:#34d399;
+  --orange:#f97316;--orange2:#fb923c;
+  --red:#ef4444;--red2:#f87171;
+  --yellow:#eab308;--yellow2:#fbbf24;
+  --purple:#8b5cf6;--purple2:#a78bfa;
+  --text1:#f0f6ff;--text2:#94a3b8;--text3:#475569;
+  --font-display:'Rajdhani',sans-serif;
+  --font-body:'Syne',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+body{font-family:var(--font-body);background:var(--bg0);color:var(--text1);min-height:100vh;overflow-x:hidden}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:3px;background:var(--bg3);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--orange);cursor:pointer;box-shadow:0 0 8px #f9731677}
+input,textarea,select{background:var(--bg1);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text1);font-size:13px;width:100%;outline:none;font-family:var(--font-body);transition:border-color .2s}
+input:focus,textarea:focus,select:focus{border-color:var(--blue2)}
+select option{background:var(--bg1)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg1)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── HEADER ─────────────────────────────────────── */
+.hdr{background:linear-gradient(135deg,var(--bg2),var(--bg3));padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.hdr-logo{display:flex;align-items:center;gap:12px}
+.hdr-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--blue),var(--cyan));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 20px #2563eb44}
+.hdr-title{font-family:var(--font-display);font-size:15px;font-weight:700;line-height:1.3;background:linear-gradient(90deg,#fff,var(--blue3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-sub{font-size:11px;color:var(--text2);margin-top:1px;-webkit-text-fill-color:var(--text2)}
+.hdr-odo{text-align:right;font-family:var(--font-display)}
+.hdr-odo-label{font-size:10px;color:var(--cyan2);text-transform:uppercase;letter-spacing:.8px}
+.hdr-odo-val{font-size:22px;font-weight:700;color:#fff}
+
+/* ── NOTIF BAR ──────────────────────────────────── */
+.nbar{background:var(--bg1);border-bottom:1px solid var(--border);padding:12px 24px}
+.nbar-title{display:flex;align-items:center;gap:7px;font-weight:700;font-size:13px;color:var(--red2);margin-bottom:8px}
+.notif-item{padding:9px 13px;border-radius:8px;border-left:3px solid;margin-bottom:5px;font-size:12px}
+.notif-item.emergency{background:#2a0606;border-color:var(--red)}
+.notif-item.critical{background:#271208;border-color:var(--orange)}
+.notif-item.warning{background:#251504;border-color:var(--yellow)}
+.notif-item.info{background:#091228;border-color:var(--blue2)}
+.notif-title{font-weight:700;color:var(--text1)}
+.notif-action{font-size:11px;color:var(--text2);margin-top:2px}
+.notif-time{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* ── TABS ───────────────────────────────────────── */
+.tabs{background:var(--bg1);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 8px;gap:2px}
+.tab-btn{display:flex;align-items:center;gap:6px;padding:13px 13px;font-size:12px;font-weight:700;border:none;border-bottom:2px solid transparent;background:none;color:var(--text3);cursor:pointer;transition:all .2s;white-space:nowrap;letter-spacing:.3px;font-family:var(--font-body)}
+.tab-btn.active{color:var(--cyan2);border-bottom-color:var(--cyan)}
+.tab-btn:hover:not(.active){color:var(--text1)}
+
+/* ── LAYOUT ─────────────────────────────────────── */
+.content{padding:20px;max-width:960px;margin:0 auto}
+
+/* ── CARDS ──────────────────────────────────────── */
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent)}
+.card-title{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text1);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+
+/* ── METRICS ─────────────────────────────────────── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric-card{border-radius:14px;padding:18px;position:relative;overflow:hidden}
+.metric-card.blue{background:linear-gradient(135deg,#1a3a8f,#1e3a8a);border:1px solid #2563eb44}
+.metric-card.green{background:linear-gradient(135deg,#064e3b,#065f46);border:1px solid #10b98144}
+.metric-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.metric-label{font-size:11px;color:#ffffffaa;text-transform:uppercase;letter-spacing:.6px}
+.metric-val{font-family:var(--font-display);font-size:48px;font-weight:700;line-height:1}
+.metric-unit{font-size:12px;color:#ffffffaa;margin-top:3px}
+.small-metric{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px}
+.small-metric-label{font-size:11px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.small-metric-val{font-family:var(--font-display);font-size:24px;font-weight:700}
+.tire-cell{background:var(--bg0);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.tire-label{font-size:11px;color:var(--text3);margin-bottom:4px}
+.tire-val{font-family:var(--font-display);font-size:26px;font-weight:700}
+.good{color:var(--green2)}.bad{color:var(--red2)}.warn{color:var(--yellow2)}
+
+/* ── DB SPECIFIC ─────────────────────────────────── */
+.db-section-title{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--cyan2);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.db-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+.db-table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--font-mono)}
+.db-table thead tr{background:var(--bg3)}
+.db-table th{padding:10px 12px;text-align:left;font-size:10px;color:var(--cyan2);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;border-bottom:1px solid var(--border)}
+.db-table td{padding:9px 12px;border-bottom:1px solid var(--border)22;color:var(--text2);white-space:nowrap}
+.db-table tr:last-child td{border-bottom:none}
+.db-table tr:hover td{background:var(--bg2);color:var(--text1)}
+.db-table tr.selected td{background:#1a3a8f33;color:var(--text1)}
+.db-count{font-family:var(--font-mono);font-size:10px;color:var(--text3);padding:6px 12px;background:var(--bg3);border-top:1px solid var(--border);border-radius:0 0 10px 10px}
+.db-badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--font-mono)}
+.db-badge.green{background:#064e3b;color:var(--green2);border:1px solid var(--green)44}
+.db-badge.red{background:#2a0606;color:var(--red2);border:1px solid var(--red)44}
+.db-badge.yellow{background:#251504;color:var(--yellow2);border:1px solid var(--yellow)44}
+.db-badge.blue{background:#091228;color:var(--blue3);border:1px solid var(--blue2)44}
+.db-badge.purple{background:#1a0940;color:var(--purple2);border:1px solid var(--purple)44}
+.db-badge.cyan{background:#031a22;color:var(--cyan2);border:1px solid var(--cyan)44}
+
+.stat-pill{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:3px}
+.stat-pill-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;font-family:var(--font-mono)}
+.stat-pill-val{font-family:var(--font-display);font-size:22px;font-weight:700}
+
+.btn{padding:9px 16px;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:var(--font-body);transition:all .15s}
+.btn-primary{background:linear-gradient(135deg,var(--blue),#1d4ed8);color:#fff}
+.btn-primary:hover{box-shadow:0 4px 16px #2563eb55;transform:translateY(-1px)}
+.btn-danger{background:linear-gradient(135deg,var(--red),#b91c1c);color:#fff}
+.btn-danger:hover{box-shadow:0 4px 16px #ef444455}
+.btn-success{background:linear-gradient(135deg,var(--green),#065f46);color:#fff}
+.btn-success:hover{box-shadow:0 4px 16px #10b98155}
+.btn-ghost{background:var(--bg2);border:1px solid var(--border);color:var(--text2)}
+.btn-ghost:hover{color:var(--text1);border-color:var(--border2)}
+.btn-sm{padding:6px 11px;font-size:11px;border-radius:6px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+
+.form-row{margin-bottom:12px}
+.form-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px;font-family:var(--font-mono);display:block}
+.form-grid{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+
+.tabs-inner{display:flex;gap:0;background:var(--bg2);border-radius:10px;padding:3px;margin-bottom:16px}
+.tab-inner-btn{flex:1;padding:8px 10px;border:none;border-radius:8px;background:none;color:var(--text3);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:var(--font-body)}
+.tab-inner-btn.active{background:var(--bg3);color:var(--cyan2);border:1px solid var(--border)}
+
+.export-zone{background:var(--bg0);border:1px dashed var(--border);border-radius:10px;padding:16px;font-family:var(--font-mono);font-size:11px;color:var(--green2);overflow-x:auto;white-space:pre;max-height:220px;overflow-y:auto;line-height:1.6}
+
+/* ── LIVE ──────────────────────────────────────── */
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green2);display:inline-block;animation:blink 1.2s ease-in-out infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── ROUTE HERO ─────────────────────────────────── */
+.route-hero{background:linear-gradient(135deg,#1a0a4a,#2e1065);border:1px solid #5b21b633;border-radius:14px;padding:20px;margin-bottom:14px}
+.route-name{font-family:var(--font-display);font-size:22px;font-weight:700}
+.route-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
+.route-meta-label{font-size:10px;color:#ffffffaa;text-transform:uppercase}
+.route-meta-val{font-family:var(--font-display);font-size:17px;font-weight:700}
+
+/* ── PARENTAL HERO ──────────────────────────────── */
+.parental-hero{background:linear-gradient(135deg,#431407,#7c2d12);border:1px solid #c2410c33;border-radius:14px;padding:20px;margin-bottom:14px}
+.toggle-btn{padding:7px 16px;background:#fff;color:#9a3412;border:none;border-radius:8px;font-weight:800;font-size:12px;cursor:pointer;font-family:var(--font-body)}
+.speed-display{background:var(--bg0);border:1px solid var(--border);border-radius:10px;padding:13px;display:flex;justify-content:space-between;align-items:center}
+.speed-num{font-family:var(--font-display);font-size:36px;font-weight:700}
+.alert-strip{display:flex;align-items:center;gap:7px;color:var(--red2);font-weight:700;font-size:12px;margin-top:7px}
+.feature-row{background:var(--bg0);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.feat-label{display:flex;align-items:center;gap:9px;font-size:13px}
+.feat-toggle{padding:5px 13px;border:none;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;font-family:var(--font-body)}
+.on{background:var(--green);color:#fff}.off{background:var(--bg3);color:var(--text3)}
+.accident-btn{width:100%;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border:none;padding:13px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;margin-top:6px;transition:all .2s;font-family:var(--font-body)}
+.accident-btn:hover{box-shadow:0 4px 24px #ef444466}
+
+/* ── MAINTENANCE ─────────────────────────────────── */
+.maint-item{border-radius:10px;border-left:3px solid;padding:12px 14px;margin-bottom:8px;display:flex;gap:11px}
+.maint-item.high{background:#2a0606;border-color:var(--red)}
+.maint-item.medium{background:#271208;border-color:var(--orange)}
+.maint-item.low{background:#091228;border-color:var(--blue2)}
+.maint-msg{font-size:13px;font-weight:700;color:var(--text1)}
+.maint-prio{font-size:11px;color:var(--text2);margin-top:2px;font-family:var(--font-mono)}
+.health-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)44}
+.health-row:last-child{border-bottom:none}
+.health-bar-bg{width:100px;height:5px;background:var(--bg3);border-radius:3px;margin-right:10px}
+.health-bar{height:5px;border-radius:3px}
+.health-right{display:flex;align-items:center}
+.health-pct{font-family:var(--font-display);font-size:18px;font-weight:700}
+
+/* ── PARENT MONITOR ─────────────────────────────── */
+.parent-hero{background:linear-gradient(135deg,#071c3f,#0c2d6b);border:1px solid var(--blue)33;border-radius:14px;padding:20px;margin-bottom:14px}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--font-mono)}
+.badge-green{background:#064e3b;color:var(--green2);border:1px solid var(--green)44}
+.badge-red{background:#2a0606;color:var(--red2);border:1px solid var(--red)44}
+.badge-blue{background:#091228;color:var(--blue3);border:1px solid var(--blue2)44}
+.badge-pulse{animation:blink 1.4s ease-in-out infinite}
+.stat-box{background:var(--bg0);border:1px solid var(--border);border-radius:9px;padding:11px 13px}
+.stat-box-label{font-size:10px;color:var(--text3);margin-bottom:2px;font-family:var(--font-mono)}
+.stat-box-val{font-family:var(--font-display);font-size:18px;font-weight:700}
+.alert-log-item{padding:10px 12px;border-radius:9px;border-left:3px solid;margin-bottom:7px;display:flex;justify-content:space-between;align-items:flex-start;gap:9px;animation:fadeIn .3s ease}
+.alert-log-item.emergency{background:#2a0606;border-color:var(--red)}
+.alert-log-item.critical{background:#271208;border-color:var(--orange)}
+.alert-log-item.warning{background:#251504;border-color:var(--yellow)}
+.alert-log-item.info{background:#091228;border-color:var(--blue2)}
+.trip-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)44;font-size:13px}
+.trip-row:last-child{border-bottom:none}
+
+/* ── SETUP ──────────────────────────────────────── */
+.setup-field{margin-bottom:11px}
+.setup-label{font-size:10px;color:var(--text2);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;display:block;font-family:var(--font-mono)}
+.method-btn{flex:1;min-width:80px;padding:9px 10px;border-radius:9px;border:2px solid var(--border);background:var(--bg0);color:var(--text3);font-size:11px;font-weight:700;cursor:pointer;text-align:center;transition:all .2s;font-family:var(--font-body)}
+.method-btn.sel{border-color:var(--blue2);color:var(--blue3);background:#091228}
+.send-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--blue),#1d4ed8);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-body)}
+.send-btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ── TOAST ──────────────────────────────────────── */
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 16px;border-radius:10px;font-size:12px;font-weight:700;z-index:9999;max-width:320px;box-shadow:0 8px 32px #00000077;animation:fadeIn .3s ease;cursor:pointer;font-family:var(--font-body)}
+.toast.success{background:#064e3b;border:1px solid var(--green);color:var(--green2)}
+.toast.error{background:#2a0606;border:1px solid var(--red);color:var(--red2)}
+.toast.info{background:#091228;border:1px solid var(--blue2);color:var(--blue3)}
+
+/* ── DB HERO ─────────────────────────────────────── */
+.db-hero{background:linear-gradient(135deg,#021a12,#032b1e);border:1px solid var(--green)33;border-radius:14px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
+
+.search-input{background:var(--bg0);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text1);font-size:12px;outline:none;font-family:var(--font-mono);transition:border-color .2s;width:100%}
+.search-input:focus{border-color:var(--cyan)}
+
+@media(max-width:600px){
+  .grid3{grid-template-columns:1fr 1fr}
+  .route-grid{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .content{padding:12px}
+  .metric-val{font-size:38px}
+  .hdr-title{font-size:13px}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+/* ═══════════════════════════════════════════════════
+   DATABASE ENGINE  (in-memory with full CRUD + export)
+   Tables: trips | alerts | vehicles | drivers | maintenance
+═══════════════════════════════════════════════════ */
+function createDB() {
+  const now = () => new Date().toISOString();
+  const uid = () => Math.random().toString(36).slice(2,9).toUpperCase();
+
+  const seed = {
+    vehicles: [
+      {id:'VH001',plate:'MH12 AB 3456',make:'Tesla',model:'Model 3',year:2022,color:'Midnight Silver',odo:45230,battery:85,status:'active',owner:'Johnson Family',created:now()},
+      {id:'VH002',plate:'MH12 CD 7890',make:'Toyota',model:'Camry',year:2021,color:'Pearl White',odo:28400,battery:null,status:'active',owner:'Smith Family',created:now()},
+    ],
+    drivers: [
+      {id:'DR001',name:'Alex Johnson',age:17,license:'TEEN-2024',vehicleId:'VH001',parentId:'PR001',speedLimit:80,geoFence:true,nightBan:false,score:85,status:'active',created:now()},
+      {id:'DR002',name:'Sam Smith',age:16,license:'TEEN-2023',vehicleId:'VH002',parentId:'PR002',speedLimit:70,geoFence:true,nightBan:true,score:72,status:'active',created:now()},
+    ],
+    parents: [
+      {id:'PR001',name:'Mrs. Johnson',email:'',phone:'',inApp:true,emailOn:false,sms:false,created:now()},
+      {id:'PR002',name:'Mr. Smith',email:'',phone:'',inApp:true,emailOn:false,sms:false,created:now()},
+    ],
+    trips: [
+      {id:'TR001',driverId:'DR001',vehicleId:'VH001',route:'School → Home',distance:12.5,maxSpeed:92,avgSpeed:65,score:78,startTime:'2024-01-15T15:45:00',endTime:'2024-01-15T16:12:00',status:'completed'},
+      {id:'TR002',driverId:'DR001',vehicleId:'VH001',route:'Home → Mall',distance:8.2,maxSpeed:74,avgSpeed:58,score:90,startTime:'2024-01-15T11:00:00',endTime:'2024-01-15T11:22:00',status:'completed'},
+      {id:'TR003',driverId:'DR001',vehicleId:'VH001',route:'Home → School',distance:12.5,maxSpeed:88,avgSpeed:68,score:85,startTime:'2024-01-15T07:30:00',endTime:'2024-01-15T07:58:00',status:'completed'},
+      {id:'TR004',driverId:'DR001',vehicleId:'VH001',route:'Night Out → Home',distance:15.0,maxSpeed:105,avgSpeed:82,score:55,startTime:'2024-01-14T23:00:00',endTime:'2024-01-14T23:38:00',status:'completed'},
+      {id:'TR005',driverId:'DR002',vehicleId:'VH002',route:'Home → Sports Ground',distance:6.8,maxSpeed:68,avgSpeed:50,score:92,startTime:'2024-01-14T16:00:00',endTime:'2024-01-14T16:20:00',status:'completed'},
+    ],
+    alerts: [
+      {id:'AL001',driverId:'DR001',vehicleId:'VH001',type:'critical',category:'speed',title:'Speed Limit Exceeded',detail:'Driving at 92 km/h — limit is 80 km/h',location:'Highway 45',resolved:true,timestamp:now()},
+      {id:'AL002',driverId:'DR001',vehicleId:'VH001',type:'emergency',category:'accident',title:'ACCIDENT DETECTED',detail:'Severe impact sensor triggered near Downtown',location:'Downtown Area',resolved:false,timestamp:now()},
+      {id:'AL003',driverId:'DR002',vehicleId:'VH002',type:'warning',category:'geo',title:'Geofence Crossed',detail:'Left approved driving zone',location:'Ring Road',resolved:true,timestamp:now()},
+    ],
+    maintenance: [
+      {id:'MT001',vehicleId:'VH001',task:'Oil Change',priority:'medium',dueKm:45730,notes:'Standard 5W-30 synthetic',status:'pending',created:now()},
+      {id:'MT002',vehicleId:'VH001',task:'Tire Rotation',priority:'low',dueKm:46000,notes:'All four tires',status:'pending',created:now()},
+      {id:'MT003',vehicleId:'VH002',task:'Brake Pad Inspection',priority:'high',dueKm:28600,notes:'Front pads at 35% life',status:'pending',created:now()},
+    ],
+  };
+
+  // Load from memory or use seed
+  const state = { ...seed };
+
+  return {
+    // ── READ ──
+    getAll: (table) => [...(state[table]||[])],
+    getById: (table, id) => (state[table]||[]).find(r=>r.id===id),
+    query: (table, predicate) => (state[table]||[]).filter(predicate),
+    count: (table) => (state[table]||[]).length,
+
+    // ── CREATE ──
+    insert: (table, record) => {
+      if (!state[table]) state[table] = [];
+      const newRec = { id: table.slice(0,2).toUpperCase()+uid(), ...record, created: now() };
+      state[table].unshift(newRec);
+      return newRec;
+    },
+
+    // ── UPDATE ──
+    update: (table, id, changes) => {
+      if (!state[table]) return null;
+      const idx = state[table].findIndex(r=>r.id===id);
+      if (idx<0) return null;
+      state[table][idx] = { ...state[table][idx], ...changes, updatedAt: now() };
+      return state[table][idx];
+    },
+
+    // ── DELETE ──
+    delete: (table, id) => {
+      if (!state[table]) return false;
+      const before = state[table].length;
+      state[table] = state[table].filter(r=>r.id!==id);
+      return state[table].length < before;
+    },
+
+    // ── BULK ──
+    bulkInsert: (table, records) => records.map(r => {
+      if (!state[table]) state[table] = [];
+      const newRec = { id: table.slice(0,2).toUpperCase()+uid(), ...r, created: now() };
+      state[table].unshift(newRec);
+      return newRec;
+    }),
+
+    // ── EXPORT ──
+    exportJSON: () => JSON.stringify(state, null, 2),
+    exportCSV: (table) => {
+      const rows = state[table]||[];
+      if(!rows.length) return '';
+      const headers = Object.keys(rows[0]);
+      return [headers.join(','), ...rows.map(r=>headers.map(h=>`"${(r[h]??'').toString().replace(/"/g,'""')}"`).join(','))].join('\n');
+    },
+    getStats: () => ({
+      totalRecords: Object.values(state).reduce((a,t)=>a+t.length,0),
+      tables: Object.fromEntries(Object.entries(state).map(([k,v])=>[k,v.length])),
+      lastUpdate: now(),
+    }),
+    state,
+  };
+}
+
+/* ── singleton DB ── */
+const DB = createDB();
+
+/* ═══════════════════════════════════════════════════
+   ICONS
+═══════════════════════════════════════════════════ */
+const Ic = {
+  Car:    ()=><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-1M5 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0zm9 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0z"/><path d="M14 3v5h5M3 11h18"/></svg>,
+  Bat:    ()=><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="6" width="18" height="12" rx="2"/><path d="M23 13v-2"/></svg>,
+  Gauge:  ()=><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 12L8.5 8.5"/></svg>,
+  Warn:   ({s=20})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+  Nav:    ({s=20})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>,
+  Shield: ({s=20})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+  Bell:   ({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
+  Act:    ({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+  Wind:   ({s=18})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>,
+  Pin:    ({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+  Clock:  ({s=16})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+  Users:  ({s=20})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  Trash:  ({s=14})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>,
+  DB:     ({s=20})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>,
+  Plus:   ({s=14})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  Edit:   ({s=13})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+  DL:     ({s=14})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+  Check:  ({s=13})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+  X:      ({s=13})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  Search: ({s=14})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+};
+
+const Spin = ()=><span style={{width:13,height:13,border:'2px solid #fff',borderTopColor:'transparent',borderRadius:'50%',animation:'spin .7s linear infinite',display:'inline-block'}}/>;
+
+function Toasts({list,remove}) {
+  return (
+    <div style={{position:'fixed',bottom:20,right:20,zIndex:9999,display:'flex',flexDirection:'column',gap:7,maxWidth:320}}>
+      {list.map(t=>(
+        <div key={t.id} className={`toast ${t.type}`} onClick={()=>remove(t.id)}>{t.msg}</div>
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   APP ROOT
+═══════════════════════════════════════════════════ */
+function App() {
+  const [tab, setTab]         = useState('dashboard');
+  const [toasts, setToasts]   = useState([]);
+  const [notifs, setNotifs]   = useState([]);
+  const [alertLog, setAlertLog] = useState([]);
+  const [dbVersion, setDbVersion] = useState(0); // forces DB re-reads
+
+  const addToast = (msg, type='info', ms=4500) => {
+    const id = Date.now()+Math.random();
+    setToasts(p=>[...p,{id,msg,type}]);
+    setTimeout(()=>setToasts(p=>p.filter(t=>t.id!==id)),ms);
+  };
+
+  const refreshDB = () => setDbVersion(v=>v+1);
+
+  const [veh, setVeh] = useState({speed:0,battery:85,tyre:{fl:32,fr:32,rl:30,rr:31},temp:90,fuel:65,odo:45230,score:85});
+  const [pc, setPC]   = useState({on:true,limit:80,spd:0,driver:'Alex',loc:'Downtown Area',sent:false,geo:true,night:false});
+  const [ps, setPS]   = useState({name:'Mrs. Johnson',email:'',phone:'',inApp:true,email_on:false,sms:false});
+
+  const pcR = useRef(pc); pcR.current = pc;
+  const psR = useRef(ps); psR.current = ps;
+
+  const dispatch = async (alert, subject, body) => {
+    const p = psR.current;
+    const delivered = [];
+    if (p.inApp) {
+      setNotifs(x=>[alert,...x].slice(0,5));
+      setAlertLog(x=>[alert,...x].slice(0,40));
+      // Persist to DB
+      DB.insert('alerts', {
+        driverId:'DR001', vehicleId:'VH001',
+        type: alert.type, category: alert.cat||'general',
+        title: alert.title, detail: alert.message||alert.msg||'',
+        location: alert.loc||'', resolved: false,
+      });
+      refreshDB();
+      delivered.push('In-App ✓');
+    }
+    if (p.sms && p.phone) { delivered.push('SMS simulated ✓'); addToast(`📱 SMS → ${p.phone}`,'info'); }
+    return delivered;
+  };
+
+  const doAccident = async () => {
+    setVeh(x=>({...x,speed:0}));
+    const a = {id:Date.now(),type:'emergency',title:'🆘 ACCIDENT DETECTED!',message:'Severe impact sensor triggered.',loc:pcR.current.loc,timestamp:new Date().toLocaleTimeString(),cat:'accident'};
+    const r = await dispatch(a,'🆘 EMERGENCY','Accident detected.');
+    addToast('🆘 Emergency dispatched! '+r.join(', '),'error',6000);
+  };
+
+  // Simulate live vehicle + trips
+  useEffect(()=>{
+    const iv = setInterval(async()=>{
+      const spd = Math.floor(Math.random()*120);
+      setVeh(x=>({...x,speed:spd,battery:Math.max(20,x.battery-Math.random()*.3),temp:85+Math.random()*12}));
+      setPC(x=>({...x,spd}));
+      const p = pcR.current;
+      if (p.on && spd>p.limit && !p.sent) {
+        const a = {id:Date.now(),type:'critical',title:'🚨 Speed Limit Exceeded!',message:`${p.driver} doing ${spd} km/h — limit ${p.limit} km/h`,loc:p.loc,timestamp:new Date().toLocaleTimeString(),cat:'speed'};
+        setPC(x=>({...x,sent:true}));
+        await dispatch(a,`Speed Alert`,`${p.driver} at ${spd} km/h`);
+        setTimeout(()=>setPC(x=>({...x,sent:false})),12000);
+      }
+      if (Math.random()>.97) {
+        const a = {id:Date.now()+1,type:'warning',title:'⚠️ Low Tire Pressure',message:'Rear Left dropped to 28 PSI',loc:pcR.current.loc,timestamp:new Date().toLocaleTimeString(),cat:'vehicle'};
+        setNotifs(x=>[a,...x].slice(0,5));
+        setAlertLog(x=>[a,...x].slice(0,40));
+      }
+    },2000);
+    return ()=>clearInterval(iv);
+  },[]);
+
+  // Periodically record live trip snapshots
+  useEffect(()=>{
+    const iv = setInterval(()=>{
+      if (pcR.current.spd>5) {
+        DB.update('vehicles','VH001',{odo:45230+Math.floor(Math.random()*100)});
+        refreshDB();
+      }
+    },10000);
+    return ()=>clearInterval(iv);
+  },[]);
+
+  const tabs = [
+    {id:'dashboard',  label:'Dashboard',      Icon:Ic.Act},
+    {id:'navigation', label:'Navigation',      Icon:Ic.Nav},
+    {id:'parental',   label:'Parental',        Icon:Ic.Shield},
+    {id:'parent',     label:'Parent Monitor',  Icon:Ic.Users},
+    {id:'maintenance',label:'Maintenance',     Icon:Ic.Warn},
+    {id:'database',   label:'🗄️ Database',     Icon:Ic.DB},
+  ];
+
+  return (
+    <div>
+      <div className="hdr">
+        <div className="hdr-logo">
+          <div className="hdr-icon">🚗</div>
+          <div>
+            <div className="hdr-title">AI-Driven Intelligent In-Car Decision Support System For Vehicle Health Monitoring And Smart Route Guidance</div>
+            <div className="hdr-sub">Real-Time AI Route Intelligence &amp; Vehicle Safety Monitor</div>
+          </div>
+        </div>
+        <div className="hdr-odo">
+          <div className="hdr-odo-label">Odometer</div>
+          <div className="hdr-odo-val">{veh.odo.toLocaleString()} km</div>
+        </div>
+      </div>
+
+      {notifs.length>0 && (
+        <div className="nbar">
+          <div className="nbar-title"><Ic.Bell s={13}/> Live Alerts</div>
+          {notifs.slice(0,3).map(n=>(
+            <div key={n.id} className={`notif-item ${n.type}`}>
+              <div className="notif-title">{n.title}</div>
+              {n.action && <div className="notif-action">{n.action}</div>}
+              <div className="notif-time">{n.timestamp}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="tabs">
+        {tabs.map(t=>(
+          <button key={t.id} className={`tab-btn ${tab===t.id?'active':''}`} onClick={()=>setTab(t.id)}>
+            <t.Icon s={14}/>{t.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="content">
+        {tab==='dashboard'   && <Dashboard veh={veh}/>}
+        {tab==='navigation'  && <NavTab/>}
+        {tab==='parental'    && <ParentalTab pc={pc} setPC={setPC} doAccident={doAccident}/>}
+        {tab==='parent'      && <ParentMonitor alertLog={alertLog} setAlertLog={setAlertLog} veh={veh} pc={pc} ps={ps} setPS={setPS} addToast={addToast} dispatch={dispatch} doAccident={doAccident}/>}
+        {tab==='maintenance' && <MaintTab/>}
+        {tab==='database'    && <DatabaseTab addToast={addToast} dbVersion={dbVersion} refreshDB={refreshDB}/>}
+      </div>
+
+      <Toasts list={toasts} remove={id=>setToasts(p=>p.filter(t=>t.id!==id))}/>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════════════ */
+function Dashboard({veh}) {
+  return (
+    <div>
+      <div className="grid2">
+        <div className="metric-card blue">
+          <div className="metric-header"><Ic.Gauge/><span className="metric-label">Current Speed</span></div>
+          <div className="metric-val">{veh.speed}</div>
+          <div className="metric-unit">km/h</div>
+        </div>
+        <div className="metric-card green">
+          <div className="metric-header"><Ic.Bat/><span className="metric-label">Battery</span></div>
+          <div className="metric-val">{veh.battery.toFixed(0)}%</div>
+          <div className="metric-unit">State of Charge</div>
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-title"><Ic.Wind s={16}/> Tire Pressure (PSI)</div>
+        <div className="grid4">
+          {[['fl','Front Left'],['fr','Front Right'],['rl','Rear Left'],['rr','Rear Right']].map(([k,l])=>(
+            <div className="tire-cell" key={k}>
+              <div className="tire-label">{l}</div>
+              <div className={`tire-val ${veh.tyre[k]<30?'bad':'good'}`}>{veh.tyre[k]}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="grid3">
+        <div className="small-metric"><div className="small-metric-label">Engine Temp</div><div className={`small-metric-val ${veh.temp>95?'bad':'good'}`}>{veh.temp.toFixed(0)}°C</div></div>
+        <div className="small-metric"><div className="small-metric-label">Fuel Level</div><div className="small-metric-val" style={{color:'var(--blue3)'}}>{veh.fuel}%</div></div>
+        <div className="small-metric"><div className="small-metric-label">Driving Score</div><div className="small-metric-val" style={{color:'var(--purple2)'}}>{veh.score}/100</div></div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════ */
+function NavTab() {
+  const [sel, setSel] = useState(null);
+  const [ai, setAi]   = useState(false);
+  const [rec, setRec] = useState(null);
+  const routes = [
+    {id:1,name:'Highway Express',via:'Via National Highway 45',time:'16 mins',dist:'14.2 km',traffic:'Low',fuel:'1.2L',safety:94,cond:'Clear road, well-lit',toll:'₹25',tag:'FASTEST',col:'#22c55e',bg:'#021a0a',why:['Least traffic congestion','Best road surface','Well-lit for night driving','Lowest fuel use']},
+    {id:2,name:'City Route',via:'Via Main Street & Ring Road',time:'22 mins',dist:'13.8 km',traffic:'Moderate',fuel:'1.5L',safety:80,cond:'School zone ahead',toll:'₹0',tag:'SHORTEST',col:'#3b82f6',bg:'#071228',why:['No toll charges','Scenic route','Commercial area stops','School zone — slow down']},
+    {id:3,name:'Bypass Route',via:'Via Eastern Bypass',time:'25 mins',dist:'16.0 km',traffic:'Very Low',fuel:'1.4L',safety:88,cond:'Partial construction',toll:'₹10',tag:'ECO-FRIENDLY',col:'#8b5cf6',bg:'#120a30',why:['Smooth traffic flow','Lower emissions','No sharp turns','Good for new drivers']},
+  ];
+  const runAI = () => { setAi(true); setRec(null); setTimeout(()=>{setAi(false);setRec(routes[0]);setSel(1);},2000); };
+  return (
+    <div>
+      <div className="route-hero">
+        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:14}}>
+          <Ic.Nav s={24}/>
+          <div><div style={{fontSize:10,opacity:.7}}>ACTIVE ROUTE</div><div className="route-name">Home to School</div></div>
+        </div>
+        <div className="route-grid">
+          {[['Distance','12.5 km'],['ETA','18 mins'],['Traffic','Moderate']].map(([l,v])=>(
+            <div key={l}><div className="route-meta-label">{l}</div><div className="route-meta-val">{v}</div></div>
+          ))}
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-title">🤖 AI Route Intelligence</div>
+        <p style={{fontSize:12,color:'var(--text2)',marginBottom:12}}>The AI engine analyses traffic density, road safety, fuel efficiency, toll cost and weather to recommend the optimal route.</p>
+        <button onClick={runAI} disabled={ai} style={{width:'100%',padding:11,background:ai?'var(--bg2)':'linear-gradient(135deg,var(--blue),var(--purple))',border:'none',borderRadius:10,color:'#fff',fontWeight:700,fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:9,opacity:ai?.6:1,fontFamily:'var(--font-body)'}}>
+          {ai?<><Spin/> Analysing routes…</>:<>⚡ Get AI Best Route Recommendation</>}
+        </button>
+        {rec && (
+          <div style={{marginTop:12,padding:13,background:'#021a0a',border:'1px solid var(--green)44',borderRadius:10}}>
+            <div style={{fontWeight:700,color:'var(--green2)',fontSize:13,marginBottom:7}}>✅ AI Recommends: {rec.name}</div>
+            <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+              {rec.why.map((w,i)=><span key={i} style={{background:'#064e3b',color:'var(--green2)',fontSize:10,padding:'2px 8px',borderRadius:20}}>✓ {w}</span>)}
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="card">
+        <div className="card-title">📍 Available Routes</div>
+        {routes.map(r=>(
+          <div key={r.id} onClick={()=>setSel(r.id)} style={{background:r.bg,border:`2px solid ${sel===r.id?r.col:'var(--border)'}`,borderRadius:12,padding:14,marginBottom:10,cursor:'pointer',transition:'all .2s',position:'relative'}}>
+            <div style={{position:'absolute',top:10,right:10,background:r.col+'22',color:r.col,fontSize:10,fontWeight:700,padding:'2px 7px',borderRadius:20,fontFamily:'var(--font-mono)'}}>{r.tag}</div>
+            <div style={{fontFamily:'var(--font-display)',fontSize:18,fontWeight:700,color:'var(--text1)',marginBottom:2}}>{r.name}</div>
+            <div style={{fontSize:11,color:'var(--text2)',marginBottom:9}}>{r.via}</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:6,marginBottom:9}}>
+              {[['⏱',r.time],['📏',r.dist],['⛽',r.fuel]].map(([e,v])=>(
+                <div key={e} style={{background:'#00000033',borderRadius:7,padding:'6px 8px'}}>
+                  <div style={{fontSize:10,color:'var(--text3)'}}>{e}</div>
+                  <div style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:16,color:'var(--text1)'}}>{v}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:5}}>
+              <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
+                {[`🚦 ${r.traffic}`,`💰 ${r.toll}`,`⚠️ ${r.cond}`].map(x=>(
+                  <span key={x} style={{fontSize:10,background:'var(--bg2)',padding:'2px 6px',borderRadius:20,color:'var(--text2)'}}>{x}</span>
+                ))}
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:5}}>
+                <span style={{fontSize:10,color:'var(--text3)'}}>Safety</span>
+                <div style={{width:44,height:4,background:'var(--bg3)',borderRadius:3}}>
+                  <div style={{width:`${r.safety}%`,height:4,background:r.safety>90?'var(--green2)':r.safety>80?'var(--yellow2)':'var(--red2)',borderRadius:3}}></div>
+                </div>
+                <span style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:14,color:r.safety>90?'var(--green2)':r.safety>80?'var(--yellow2)':'var(--red2)'}}>{r.safety}%</span>
+              </div>
+            </div>
+          </div>
+        ))}
+        {sel && <button style={{width:'100%',padding:12,background:'linear-gradient(135deg,var(--green),#065f46)',border:'none',borderRadius:10,color:'#fff',fontWeight:700,fontSize:13,cursor:'pointer',fontFamily:'var(--font-body)'}}>🚗 Start Navigation — Route {sel}</button>}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   PARENTAL
+═══════════════════════════════════════════════════ */
+function ParentalTab({pc,setPC,doAccident}) {
+  return (
+    <div>
+      <div className="parental-hero">
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
+          <div style={{display:'flex',alignItems:'center',gap:12}}><Ic.Shield s={24}/><div><div style={{fontSize:10,opacity:.7}}>PARENTAL CONTROL</div><div style={{fontFamily:'var(--font-display)',fontSize:24,fontWeight:700}}>{pc.on?'Active':'Inactive'}</div></div></div>
+          <button className="toggle-btn" onClick={()=>setPC(p=>({...p,on:!p.on}))}>{pc.on?'Disable':'Enable'}</button>
+        </div>
+        <div className="grid2" style={{marginBottom:0}}>
+          <div><div style={{fontSize:10,opacity:.7}}>DRIVER</div><div style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:17}}>{pc.driver}</div></div>
+          <div><div style={{fontSize:10,opacity:.7}}>LOCATION</div><div style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:17}}>{pc.loc}</div></div>
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-title">Speed Monitoring</div>
+        <div style={{marginBottom:12}}>
+          <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}><span style={{fontSize:13,fontWeight:600}}>Speed Limit</span><span style={{fontFamily:'var(--font-display)',fontWeight:700,color:'var(--orange2)',fontSize:15}}>{pc.limit} km/h</span></div>
+          <input type="range" min="40" max="120" value={pc.limit} onChange={e=>setPC(p=>({...p,limit:+e.target.value}))}/>
+        </div>
+        <div className="speed-display">
+          <span style={{fontWeight:600,fontSize:13}}>Current Speed</span>
+          <span className={`speed-num ${pc.spd>pc.limit?'bad':'good'}`}>{pc.spd} km/h</span>
+        </div>
+        {pc.spd>pc.limit && <div className="alert-strip"><Ic.Warn s={13}/> Limit exceeded! Notifying parents…</div>}
+      </div>
+      <div className="card">
+        <div className="card-title">Safety Features</div>
+        <div className="feature-row"><div className="feat-label"><Ic.Pin s={15}/> Geofence Alerts</div><button className={`feat-toggle ${pc.geo?'on':'off'}`} onClick={()=>setPC(p=>({...p,geo:!p.geo}))}>{pc.geo?'ON':'OFF'}</button></div>
+        <div className="feature-row" style={{marginBottom:0}}><div className="feat-label"><Ic.Clock s={15}/> Night Driving Alert</div><button className={`feat-toggle ${pc.night?'on':'off'}`} onClick={()=>setPC(p=>({...p,night:!p.night}))}>{pc.night?'ON':'OFF'}</button></div>
+      </div>
+      <button className="accident-btn" onClick={doAccident}><Ic.Warn s={15}/> Simulate Accident Detection</button>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   PARENT MONITOR
+═══════════════════════════════════════════════════ */
+function ParentMonitor({alertLog,setAlertLog,veh,pc,ps,setPS,addToast,dispatch,doAccident}) {
+  const [sending,setSending] = useState(false);
+  const [testType,setTestType] = useState('speed');
+  const stats = [
+    {l:'Current Speed',v:`${veh.speed} km/h`,c:veh.speed>pc.limit?'var(--red2)':'var(--green2)'},
+    {l:'Speed Limit',v:`${pc.limit} km/h`,c:'var(--orange2)'},
+    {l:'Location',v:pc.loc,c:'var(--blue3)'},
+    {l:'Score',v:`${veh.score}/100`,c:'var(--purple2)'},
+    {l:'Battery',v:`${veh.battery.toFixed(0)}%`,c:'var(--green2)'},
+    {l:'Engine',v:`${veh.temp.toFixed(0)}°C`,c:veh.temp>95?'var(--red2)':'var(--green2)'},
+  ];
+  const tripHistory = [
+    {route:'School → Home',t:'Today 3:45 PM',d:'12.5 km',max:92,s:78},
+    {route:'Home → Mall',t:'Today 11:00 AM',d:'8.2 km',max:74,s:90},
+    {route:'Home → School',t:'Today 7:30 AM',d:'12.5 km',max:88,s:85},
+    {route:'Night Out → Home',t:'Yesterday 11 PM',d:'15.0 km',max:105,s:55},
+  ];
+  const sendTest = async () => {
+    if (!ps.email && !ps.phone) { addToast('⚠️ Enter parent email or phone number first','error'); return; }
+    setSending(true);
+    const map = {
+      speed:{type:'critical',title:'🚨 Speed Limit Exceeded!',msg:`${pc.driver} doing ${veh.speed} km/h — limit ${pc.limit} km/h`,subj:`Speed Alert`,body:`Speed exceeded.`},
+      geo:{type:'warning',title:'📍 Geofence Crossed!',msg:`${pc.driver} left the approved zone`,subj:`Geofence Alert`,body:`Geofence exit.`},
+      night:{type:'warning',title:'🌙 Night Driving!',msg:`${pc.driver} driving after curfew`,subj:`Curfew`,body:`Night driving.`},
+    };
+    const t = map[testType];
+    const a = {id:Date.now(),...t,loc:pc.loc,timestamp:new Date().toLocaleTimeString(),cat:testType};
+    const r = await dispatch(a,t.subj,t.body);
+    setSending(false);
+    addToast('✅ Test alert: '+r.join(', '),'success');
+  };
+  const fireGeo = async () => {
+    const a = {id:Date.now(),type:'warning',title:'📍 Geofence Crossed!',message:`${pc.driver} left approved zone`,loc:pc.loc,timestamp:new Date().toLocaleTimeString(),cat:'geo'};
+    const r = await dispatch(a,'Geofence Alert','Geofence exit.');
+    addToast('Geofence alert: '+r.join(', '),'info');
+  };
+  const fireCurfew = async () => {
+    const a = {id:Date.now(),type:'warning',title:'🌙 Night Driving!',message:`${pc.driver} driving after curfew`,loc:pc.loc,timestamp:new Date().toLocaleTimeString(),cat:'night'};
+    const r = await dispatch(a,'Night Driving','Curfew violation.');
+    addToast('Curfew alert: '+r.join(', '),'info');
+  };
+  return (
+    <div>
+      <div className="parent-hero">
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16,flexWrap:'wrap',gap:8}}>
+          <div style={{display:'flex',alignItems:'center',gap:11}}><Ic.Users s={24}/><div><div style={{fontSize:10,opacity:.7}}>PARENT DASHBOARD</div><div style={{fontFamily:'var(--font-display)',fontSize:22,fontWeight:700}}>{ps.name||'Parent'}</div></div></div>
+          <div style={{display:'flex',gap:7,flexWrap:'wrap'}}>
+            <span className={`badge ${pc.on?'badge-green':'badge-red'}`}>{pc.on?'🟢 Monitoring ON':'🔴 Monitoring OFF'}</span>
+            <span className="badge badge-blue badge-pulse"><span className="live-dot"></span> LIVE</span>
+          </div>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
+          {stats.map(s=><div className="stat-box" key={s.l}><div className="stat-box-label">{s.l}</div><div className="stat-box-val" style={{color:s.c}}>{s.v}</div></div>)}
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-title"><Ic.Bell s={15}/> Notification Setup</div>
+        <div className="setup-field"><label className="setup-label">Parent Name</label><input type="text" value={ps.name} placeholder="Mrs. Johnson" onChange={e=>setPS(p=>({...p,name:e.target.value}))}/></div>
+        <div className="setup-field"><label className="setup-label">Email</label><input type="email" value={ps.email} placeholder="parent@gmail.com" onChange={e=>setPS(p=>({...p,email:e.target.value}))}/></div>
+        <div className="setup-field"><label className="setup-label">Phone (SMS simulation)</label><input type="text" value={ps.phone} placeholder="+91 XXXXX XXXXX" onChange={e=>setPS(p=>({...p,phone:e.target.value}))}/></div>
+        <div className="setup-label" style={{marginBottom:7}}>Channels</div>
+        <div style={{display:'flex',gap:7,flexWrap:'wrap',marginBottom:14}}>
+          {[{k:'inApp',icon:'📱',l:'In-App'},{k:'email_on',icon:'📧',l:'Email'},{k:'sms',icon:'💬',l:'SMS'}].map(m=>(
+            <button key={m.k} className={`method-btn ${ps[m.k]?'sel':''}`} onClick={()=>setPS(p=>({...p,[m.k]:!p[m.k]}))}>
+              {m.icon} {m.l} {ps[m.k]&&<span style={{color:'var(--green2)'}}>✓</span>}
+            </button>
+          ))}
+        </div>
+        <div className="setup-label" style={{marginBottom:7}}>Test Type</div>
+        <div style={{display:'flex',gap:6,marginBottom:11,flexWrap:'wrap'}}>
+          {[['speed','🚨 Speed'],['geo','📍 Geofence'],['night','🌙 Curfew']].map(([k,l])=>(
+            <button key={k} className={`method-btn ${testType===k?'sel':''}`} style={{flex:'none'}} onClick={()=>setTestType(k)}>{l}</button>
+          ))}
+        </div>
+        <button className="send-btn" onClick={sendTest} disabled={sending}>
+          {sending?<><Spin/> Sending…</>:<><Ic.Bell s={13}/> Send Test Alert</>}
+        </button>
+      </div>
+      <div className="card">
+        <div className="card-title">⚡ Quick Actions</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:9}}>
+          <button onClick={doAccident} className="btn btn-danger">🆘 Accident</button>
+          <button onClick={fireGeo} style={{padding:12,background:'linear-gradient(135deg,#d97706,#b45309)',border:'none',borderRadius:9,color:'#fff',fontWeight:700,fontSize:12,cursor:'pointer',fontFamily:'var(--font-body)'}}>📍 Geofence</button>
+          <button onClick={fireCurfew} style={{padding:12,background:'linear-gradient(135deg,var(--purple),#6d28d9)',border:'none',borderRadius:9,color:'#fff',fontWeight:700,fontSize:12,cursor:'pointer',fontFamily:'var(--font-body)'}}>🌙 Curfew</button>
+          <button onClick={()=>{setAlertLog([]);}} className="btn btn-ghost">🗑 Clear Log</button>
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-title">🗂 Alert Log ({alertLog.length})</div>
+        {alertLog.length===0
+          ? <div style={{textAlign:'center',padding:'24px 0',color:'var(--text3)',fontSize:12}}>No alerts yet. Alerts appear here in real time.</div>
+          : alertLog.map(a=>(
+            <div key={a.id} className={`alert-log-item ${a.type}`}>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:700,fontSize:12,color:'var(--text1)',marginBottom:2}}>{a.title}</div>
+                <div style={{fontSize:11,color:'var(--text2)'}}>{a.message||a.msg}</div>
+                {a.loc && <div style={{fontSize:10,color:'var(--text3)',marginTop:2}}>📍 {a.loc}</div>}
+              </div>
+              <div style={{textAlign:'right',flexShrink:0}}><div style={{fontSize:10,color:'var(--text3)'}}>{a.timestamp}</div></div>
+            </div>
+          ))
+        }
+      </div>
+      <div className="card">
+        <div className="card-title">🗓 Trip History</div>
+        {tripHistory.map((t,i)=>(
+          <div className="trip-row" key={i}>
+            <div><div style={{fontWeight:600,fontSize:13,color:'var(--text1)'}}>{t.route}</div><div style={{fontSize:10,color:'var(--text3)',marginTop:1}}>{t.t} · {t.d}</div></div>
+            <div style={{textAlign:'right'}}>
+              <div style={{fontSize:11,color:t.max>90?'var(--red2)':'var(--text2)'}}>Max {t.max} km/h</div>
+              <div style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:14,color:t.s>=85?'var(--green2)':t.s>=70?'var(--yellow2)':'var(--red2)'}}>{t.s}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   MAINTENANCE
+═══════════════════════════════════════════════════ */
+function MaintTab() {
+  const alerts = [{id:1,msg:'Oil change due in 500 km',p:'medium'},{id:2,msg:'Tire rotation recommended',p:'low'}];
+  const health = [{l:'Engine Health',pct:85,c:'var(--green2)'},{l:'Brake System',pct:75,c:'var(--yellow2)'},{l:'Battery Health',pct:92,c:'var(--green2)'}];
+  return (
+    <div>
+      <div className="card">
+        <div className="card-title">Predictive Maintenance</div>
+        {alerts.map(a=><div key={a.id} className={`maint-item ${a.p}`}><Ic.Warn s={15}/><div><div className="maint-msg">{a.msg}</div><div className="maint-prio">PRIORITY: {a.p.toUpperCase()}</div></div></div>)}
+      </div>
+      <div className="card">
+        <div className="card-title">Component Health</div>
+        {health.map(h=>(
+          <div className="health-row" key={h.l}>
+            <span style={{fontSize:13}}>{h.l}</span>
+            <div className="health-right">
+              <div className="health-bar-bg"><div className="health-bar" style={{width:`${h.pct}%`,background:h.c}}></div></div>
+              <span className="health-pct" style={{color:h.c}}>{h.pct}%</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   DATABASE TAB  ← full CRUD UI
+═══════════════════════════════════════════════════ */
+function DatabaseTab({addToast, dbVersion, refreshDB}) {
+  const [activeTable, setActiveTable] = useState('vehicles');
+  const [innerTab, setInnerTab]       = useState('browse'); // browse | insert | export | stats
+  const [search, setSearch]           = useState('');
+  const [selected, setSelected]       = useState(null);
+  const [editRow, setEditRow]         = useState(null);
+  const [newRow, setNewRow]           = useState({});
+  const [exportFmt, setExportFmt]     = useState('json');
+  const [confirmDel, setConfirmDel]   = useState(null);
+
+  const tables = ['vehicles','drivers','parents','trips','alerts','maintenance'];
+
+  const allRows = useMemo(()=> DB.getAll(activeTable), [activeTable, dbVersion]);
+  const rows = useMemo(()=>{
+    if (!search) return allRows;
+    const q = search.toLowerCase();
+    return allRows.filter(r=> Object.values(r).some(v=> String(v).toLowerCase().includes(q)));
+  },[allRows, search]);
+
+  const stats = useMemo(()=> DB.getStats(),[dbVersion]);
+
+  const tableColors = {vehicles:'var(--cyan2)',drivers:'var(--green2)',parents:'var(--purple2)',trips:'var(--blue3)',alerts:'var(--red2)',maintenance:'var(--yellow2)'};
+  const tableIcons  = {vehicles:'🚗',drivers:'👤',parents:'👨‍👩‍👦',trips:'🗺️',alerts:'🚨',maintenance:'🔧'};
+
+  // ── column keys for each table ──
+  const colKeys = useMemo(()=>{
+    const r = DB.getAll(activeTable);
+    return r.length>0 ? Object.keys(r[0]) : [];
+  },[activeTable,dbVersion]);
+
+  // ── smart badge coloring ──
+  const renderCell = (key, val) => {
+    if (val===null||val===undefined) return <span style={{color:'var(--text3)',fontStyle:'italic'}}>null</span>;
+    if (typeof val==='boolean') return <span className={`db-badge ${val?'green':'red'}`}>{val?'true':'false'}</span>;
+    if (key==='status') {
+      const c = val==='active'?'green':val==='completed'?'blue':val==='pending'?'yellow':'red';
+      return <span className={`db-badge ${c}`}>{val}</span>;
+    }
+    if (key==='type') {
+      const c = val==='emergency'?'red':val==='critical'?'red':val==='warning'?'yellow':'blue';
+      return <span className={`db-badge ${c}`}>{val}</span>;
+    }
+    if (key==='priority') {
+      const c = val==='high'?'red':val==='medium'?'yellow':'blue';
+      return <span className={`db-badge ${c}`}>{val}</span>;
+    }
+    if (key==='resolved') return <span className={`db-badge ${val?'green':'red'}`}>{val?'✓ resolved':'✗ open'}</span>;
+    if (key==='score') return <span style={{color:+val>=85?'var(--green2)':+val>=70?'var(--yellow2)':'var(--red2)',fontWeight:700}}>{val}</span>;
+    const s = String(val);
+    return <span title={s}>{s.length>28?s.slice(0,26)+'…':s}</span>;
+  };
+
+  const handleDelete = (id) => {
+    DB.delete(activeTable, id);
+    refreshDB();
+    setSelected(null);
+    setConfirmDel(null);
+    addToast(`🗑 Record ${id} deleted`,'info');
+  };
+
+  const handleEdit = () => {
+    if (!selected||!editRow) return;
+    DB.update(activeTable, selected.id, editRow);
+    refreshDB();
+    setSelected(null);
+    setEditRow(null);
+    addToast(`✅ Record ${selected.id} updated`,'success');
+  };
+
+  const handleInsert = () => {
+    if (!Object.keys(newRow).length) { addToast('Fill in at least one field','error'); return; }
+    const rec = DB.insert(activeTable, newRow);
+    refreshDB();
+    setNewRow({});
+    addToast(`✅ Inserted ${rec.id} into ${activeTable}`,'success');
+    setInnerTab('browse');
+  };
+
+  const doExport = () => {
+    const data = exportFmt==='json'
+      ? JSON.stringify(DB.getAll(activeTable), null, 2)
+      : DB.exportCSV(activeTable);
+    const blob = new Blob([data],{type:'text/plain'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${activeTable}_export.${exportFmt}`;
+    a.click();
+    addToast(`📥 Exported ${activeTable}.${exportFmt}`,'success');
+  };
+
+  const exportPreview = useMemo(()=>{
+    try {
+      return exportFmt==='json'
+        ? JSON.stringify(DB.getAll(activeTable).slice(0,2),null,2)
+        : DB.exportCSV(activeTable).split('\n').slice(0,4).join('\n');
+    } catch(e){ return ''; }
+  },[activeTable,exportFmt,dbVersion]);
+
+  return (
+    <div>
+      {/* DB Hero */}
+      <div className="db-hero">
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
+          <div style={{display:'flex',alignItems:'center',gap:12}}>
+            <div style={{width:44,height:44,background:'linear-gradient(135deg,var(--green),#065f46)',borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,boxShadow:'0 4px 20px #10b98144'}}><Ic.DB s={22}/></div>
+            <div>
+              <div style={{fontSize:10,color:'var(--green2)',textTransform:'uppercase',letterSpacing:1,fontFamily:'var(--font-mono)'}}>IN-MEMORY DATABASE</div>
+              <div style={{fontFamily:'var(--font-display)',fontSize:22,fontWeight:700}}>Data Manager</div>
+            </div>
+          </div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+            <span className="badge badge-green badge-pulse"><span className="live-dot"></span> LIVE</span>
+            <span style={{background:'var(--bg0)',border:'1px solid var(--border)',padding:'4px 10px',borderRadius:20,fontSize:10,color:'var(--text2)',fontFamily:'var(--font-mono)'}}>{stats.totalRecords} records · {tables.length} tables</span>
+          </div>
+        </div>
+        {/* Table stats */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginTop:16}}>
+          {tables.slice(0,6).map(t=>(
+            <div key={t} onClick={()=>{setActiveTable(t);setInnerTab('browse');setSearch('');setSelected(null)}}
+              style={{background:'#00000044',border:`1px solid ${activeTable===t?tableColors[t]+'77':'var(--border)22'}`,borderRadius:9,padding:'9px 11px',cursor:'pointer',transition:'all .2s'}}>
+              <div style={{fontSize:16,marginBottom:2}}>{tableIcons[t]}</div>
+              <div style={{fontFamily:'var(--font-mono)',fontSize:9,color:tableColors[t],textTransform:'uppercase',letterSpacing:.8}}>{t}</div>
+              <div style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:18,color:'var(--text1)'}}>{DB.count(t)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Table selector */}
+      <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:12}}>
+        {tables.map(t=>(
+          <button key={t} onClick={()=>{setActiveTable(t);setSearch('');setSelected(null);setEditRow(null)}}
+            style={{padding:'6px 12px',borderRadius:20,border:`1px solid ${activeTable===t?tableColors[t]:'var(--border)'}`,background:activeTable===t?tableColors[t]+'22':'var(--bg1)',color:activeTable===t?tableColors[t]:'var(--text3)',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'var(--font-mono)',transition:'all .2s'}}>
+            {tableIcons[t]} {t}
+          </button>
+        ))}
+      </div>
+
+      {/* Inner tabs */}
+      <div className="tabs-inner">
+        {[['browse','🔍 Browse'],['insert','➕ Insert'],['export','📥 Export'],['stats','📊 Stats']].map(([k,l])=>(
+          <button key={k} className={`tab-inner-btn ${innerTab===k?'active':''}`} onClick={()=>setInnerTab(k)}>{l}</button>
+        ))}
+      </div>
+
+      {/* ── BROWSE ── */}
+      {innerTab==='browse' && (
+        <div className="card">
+          <div className="card-title-row">
+            <div className="card-title" style={{marginBottom:0}}>{tableIcons[activeTable]} {activeTable} <span style={{fontSize:12,color:'var(--text3)',fontFamily:'var(--font-mono)',fontWeight:400}}>({rows.length} rows)</span></div>
+            <div style={{display:'flex',gap:7,alignItems:'center'}}>
+              <div style={{position:'relative',width:180}}>
+                <Ic.Search s={13} style={{position:'absolute',left:9,top:'50%',transform:'translateY(-50%)',color:'var(--text3)'}}/>
+                <input className="search-input" style={{paddingLeft:28}} placeholder="Search…" value={search} onChange={e=>setSearch(e.target.value)}/>
+              </div>
+            </div>
+          </div>
+          <div style={{marginBottom:0}}></div>
+          {/* Table */}
+          <div className="db-table-wrap">
+            <table className="db-table">
+              <thead>
+                <tr>{colKeys.map(k=><th key={k}>{k}</th>)}<th>actions</th></tr>
+              </thead>
+              <tbody>
+                {rows.length===0
+                  ? <tr><td colSpan={colKeys.length+1} style={{textAlign:'center',padding:'20px',color:'var(--text3)'}}>No records found</td></tr>
+                  : rows.map(r=>(
+                    <tr key={r.id} className={selected?.id===r.id?'selected':''} onClick={()=>{setSelected(r);setEditRow({...r})}}>
+                      {colKeys.map(k=><td key={k}>{renderCell(k,r[k])}</td>)}
+                      <td onClick={e=>e.stopPropagation()}>
+                        <div style={{display:'flex',gap:5}}>
+                          <button className="btn btn-ghost btn-sm" onClick={()=>{setSelected(r);setEditRow({...r});}}><Ic.Edit s={12}/></button>
+                          <button className="btn btn-danger btn-sm" onClick={()=>setConfirmDel(r.id)} title="Delete"><Ic.Trash s={12}/></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+            <div className="db-count">Showing {rows.length} of {allRows.length} records in <span style={{color:tableColors[activeTable]}}>{activeTable}</span></div>
+          </div>
+
+          {/* Edit panel */}
+          {selected && editRow && (
+            <div style={{marginTop:14,background:'var(--bg0)',border:'1px solid var(--border2)',borderRadius:12,padding:16,animation:'fadeIn .2s ease'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+                <div style={{fontFamily:'var(--font-mono)',fontSize:11,color:'var(--cyan2)'}}>EDIT — {selected.id}</div>
+                <button className="btn btn-ghost btn-sm" onClick={()=>{setSelected(null);setEditRow(null)}}><Ic.X s={12}/></button>
+              </div>
+              <div className="form-grid" style={{gridTemplateColumns:'1fr 1fr'}}>
+                {Object.keys(editRow).filter(k=>k!=='id'&&k!=='created'&&k!=='updatedAt').map(k=>(
+                  <div key={k} className="form-row">
+                    <label className="form-label">{k}</label>
+                    <input value={editRow[k]??''} onChange={e=>setEditRow(p=>({...p,[k]:e.target.value}))} style={{fontSize:12}}/>
+                  </div>
+                ))}
+              </div>
+              <div style={{display:'flex',gap:8,marginTop:4}}>
+                <button className="btn btn-success" onClick={handleEdit}><Ic.Check s={13}/> Save Changes</button>
+                <button className="btn btn-ghost" onClick={()=>{setSelected(null);setEditRow(null)}}>Cancel</button>
+              </div>
+            </div>
+          )}
+
+          {/* Confirm delete */}
+          {confirmDel && (
+            <div style={{marginTop:12,background:'#2a0606',border:'1px solid var(--red)44',borderRadius:10,padding:14,display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}>
+              <span style={{fontSize:13,color:'var(--red2)'}}>⚠️ Delete record <span style={{fontFamily:'var(--font-mono)',fontWeight:700}}>{confirmDel}</span>?</span>
+              <div style={{display:'flex',gap:7}}>
+                <button className="btn btn-danger btn-sm" onClick={()=>handleDelete(confirmDel)}><Ic.Trash s={12}/> Confirm</button>
+                <button className="btn btn-ghost btn-sm" onClick={()=>setConfirmDel(null)}>Cancel</button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── INSERT ── */}
+      {innerTab==='insert' && (
+        <div className="card">
+          <div className="card-title">➕ Insert into <span style={{color:tableColors[activeTable],fontFamily:'var(--font-mono)'}}>{activeTable}</span></div>
+          <p style={{fontSize:12,color:'var(--text2)',marginBottom:14}}>Fill in fields for a new record. The ID and timestamps are auto-generated.</p>
+          {/* Presets */}
+          {activeTable==='vehicles' && (
+            <div style={{marginBottom:14}}>
+              <div className="db-section-title">Quick Presets</div>
+              <div style={{display:'flex',gap:7,flexWrap:'wrap'}}>
+                {[
+                  {label:'Tesla Model S',preset:{plate:'KA05 TL 2024',make:'Tesla',model:'Model S',year:'2023',color:'Red',odo:'5000',battery:'95',status:'active',owner:'New Family'}},
+                  {label:'Honda City',preset:{plate:'MH04 HC 8888',make:'Honda',model:'City',year:'2022',color:'White',odo:'18000',battery:null,status:'active',owner:'Sharma Family'}},
+                ].map(p=>(
+                  <button key={p.label} className="btn btn-ghost btn-sm" onClick={()=>setNewRow(p.preset)}>{p.label}</button>
+                ))}
+              </div>
+            </div>
+          )}
+          {activeTable==='drivers' && (
+            <div style={{marginBottom:14}}>
+              <div className="db-section-title">Quick Presets</div>
+              <div style={{display:'flex',gap:7,flexWrap:'wrap'}}>
+                <button className="btn btn-ghost btn-sm" onClick={()=>setNewRow({name:'Priya Sharma',age:'17',license:'TEEN-2025',vehicleId:'VH001',parentId:'PR001',speedLimit:'75',geoFence:'true',nightBan:'false',score:'88',status:'active'})}>Priya Sharma</button>
+                <button className="btn btn-ghost btn-sm" onClick={()=>setNewRow({name:'Rohan Kumar',age:'18',license:'TEEN-2024',vehicleId:'VH002',parentId:'PR002',speedLimit:'90',geoFence:'true',nightBan:'true',score:'70',status:'active'})}>Rohan Kumar</button>
+              </div>
+            </div>
+          )}
+          {activeTable==='trips' && (
+            <div style={{marginBottom:14}}>
+              <div className="db-section-title">Quick Presets</div>
+              <button className="btn btn-ghost btn-sm" onClick={()=>setNewRow({driverId:'DR001',vehicleId:'VH001',route:'School → Market',distance:'5.2',maxSpeed:'62',avgSpeed:'45',score:'91',startTime:new Date().toISOString(),endTime:new Date().toISOString(),status:'completed'})}>School → Market</button>
+            </div>
+          )}
+          {activeTable==='alerts' && (
+            <div style={{marginBottom:14}}>
+              <div className="db-section-title">Quick Presets</div>
+              <div style={{display:'flex',gap:7,flexWrap:'wrap'}}>
+                <button className="btn btn-ghost btn-sm" onClick={()=>setNewRow({driverId:'DR001',vehicleId:'VH001',type:'critical',category:'speed',title:'Speed Exceeded',detail:'Driving at 95 km/h',location:'Outer Ring Road',resolved:'false'})}>Speed Alert</button>
+                <button className="btn btn-ghost btn-sm" onClick={()=>setNewRow({driverId:'DR001',vehicleId:'VH001',type:'warning',category:'geo',title:'Geofence Crossed',detail:'Left approved zone',location:'Highway Junction',resolved:'false'})}>Geofence Alert</button>
+              </div>
+            </div>
+          )}
+          {activeTable==='maintenance' && (
+            <div style={{marginBottom:14}}>
+              <div className="db-section-title">Quick Presets</div>
+              <div style={{display:'flex',gap:7,flexWrap:'wrap'}}>
+                <button className="btn btn-ghost btn-sm" onClick={()=>setNewRow({vehicleId:'VH001',task:'Brake Fluid Check',priority:'medium',dueKm:'46500',notes:'Check and top up',status:'pending'})}>Brake Fluid</button>
+                <button className="btn btn-ghost btn-sm" onClick={()=>setNewRow({vehicleId:'VH002',task:'Air Filter Replacement',priority:'low',dueKm:'30000',notes:'Replace every 30k km',status:'pending'})}>Air Filter</button>
+              </div>
+            </div>
+          )}
+
+          <div className="db-section-title">Fields</div>
+          <div className="form-grid">
+            {(colKeys.filter(k=>k!=='id'&&k!=='created'&&k!=='updatedAt').length>0
+              ? colKeys.filter(k=>k!=='id'&&k!=='created'&&k!=='updatedAt')
+              : Object.keys(newRow).length>0 ? Object.keys(newRow) : ['name','status']
+            ).map(k=>(
+              <div key={k} className="form-row">
+                <label className="form-label">{k}</label>
+                <input value={newRow[k]??''} onChange={e=>setNewRow(p=>({...p,[k]:e.target.value}))} placeholder={`Enter ${k}…`} style={{fontSize:12}}/>
+              </div>
+            ))}
+          </div>
+          <div style={{display:'flex',gap:8,marginTop:6}}>
+            <button className="btn btn-success" onClick={handleInsert}><Ic.Plus s={13}/> Insert Record</button>
+            <button className="btn btn-ghost" onClick={()=>setNewRow({})}>Clear</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── EXPORT ── */}
+      {innerTab==='export' && (
+        <div className="card">
+          <div className="card-title">📥 Export <span style={{color:tableColors[activeTable],fontFamily:'var(--font-mono)'}}>{activeTable}</span></div>
+          <div style={{display:'flex',gap:8,marginBottom:16}}>
+            {['json','csv'].map(f=>(
+              <button key={f} className={`method-btn ${exportFmt===f?'sel':''}`} style={{flex:'none',fontFamily:'var(--font-mono)'}} onClick={()=>setExportFmt(f)}>.{f}</button>
+            ))}
+          </div>
+          <div className="db-section-title">Preview (first 2–4 rows)</div>
+          <div className="export-zone">{exportPreview||'(empty)'}</div>
+          <div style={{marginTop:14,display:'flex',gap:8,flexWrap:'wrap'}}>
+            <button className="btn btn-primary" onClick={doExport}><Ic.DL s={13}/> Download {activeTable}.{exportFmt}</button>
+            <button className="btn btn-ghost" onClick={()=>{
+              const all = DB.exportJSON();
+              const blob = new Blob([all],{type:'application/json'});
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(blob);
+              a.download = 'full_database_export.json';
+              a.click();
+              addToast('📥 Full database exported','success');
+            }}>💾 Export Full DB</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STATS ── */}
+      {innerTab==='stats' && (
+        <div>
+          <div className="card">
+            <div className="card-title">📊 Database Statistics</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
+              <div className="stat-pill"><div className="stat-pill-label">Total Records</div><div className="stat-pill-val" style={{color:'var(--cyan2)'}}>{stats.totalRecords}</div></div>
+              <div className="stat-pill"><div className="stat-pill-label">Total Tables</div><div className="stat-pill-val" style={{color:'var(--purple2)'}}>{tables.length}</div></div>
+            </div>
+            <div className="db-section-title">Records per table</div>
+            {tables.map(t=>(
+              <div key={t} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0',borderBottom:'1px solid var(--border)33'}}>
+                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                  <span>{tableIcons[t]}</span>
+                  <span style={{fontFamily:'var(--font-mono)',fontSize:12,color:tableColors[t]}}>{t}</span>
+                </div>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <div style={{width:100,height:4,background:'var(--bg3)',borderRadius:3}}>
+                    <div style={{width:`${Math.min(100,(DB.count(t)/stats.totalRecords)*100*3)}%`,height:4,background:tableColors[t],borderRadius:3}}></div>
+                  </div>
+                  <span style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:16,color:tableColors[t],minWidth:24,textAlign:'right'}}>{DB.count(t)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="card">
+            <div className="card-title">🚨 Alert Summary</div>
+            {['emergency','critical','warning','info'].map(type=>{
+              const cnt = DB.query('alerts',a=>a.type===type).length;
+              const col = type==='emergency'||type==='critical'?'var(--red2)':type==='warning'?'var(--yellow2)':'var(--blue3)';
+              return (
+                <div key={type} style={{display:'flex',justifyContent:'space-between',padding:'7px 0',borderBottom:'1px solid var(--border)33',fontFamily:'var(--font-mono)',fontSize:12}}>
+                  <span className={`db-badge ${type==='emergency'||type==='critical'?'red':type==='warning'?'yellow':'blue'}`}>{type}</span>
+                  <span style={{color:col,fontWeight:700,fontSize:14,fontFamily:'var(--font-display)'}}>{cnt}</span>
+                </div>
+              );
+            })}
+            <div style={{marginTop:10,fontSize:12,color:'var(--text3)',fontFamily:'var(--font-mono)'}}>
+              Resolved: {DB.query('alerts',a=>a.resolved===true||a.resolved==='true').length} / {DB.count('alerts')} alerts
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-title">🗺️ Trip Analytics</div>
+            {[
+              {l:'Total Trips',v:DB.count('trips')},
+              {l:'Avg Driving Score',v:Math.round(DB.getAll('trips').reduce((a,t)=>a+(+t.score||0),0)/Math.max(1,DB.count('trips')))},
+              {l:'Highest Speed Recorded',v:Math.max(...DB.getAll('trips').map(t=>+t.maxSpeed||0))+' km/h'},
+              {l:'Total Distance',v:DB.getAll('trips').reduce((a,t)=>a+(+t.distance||0),0).toFixed(1)+' km'},
+            ].map(s=>(
+              <div key={s.l} style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid var(--border)33'}}>
+                <span style={{fontSize:13,color:'var(--text2)'}}>{s.l}</span>
+                <span style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:15,color:'var(--text1)'}}>{s.v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
